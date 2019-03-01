@@ -20,6 +20,7 @@ import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +29,7 @@ public class MainActivity extends Activity {
 
     private CallbackManager cM;
     private LoginButton lB;
-    private AdView mAdView;
+    private AdView adView;
 
 
     @Override
@@ -36,23 +37,19 @@ public class MainActivity extends Activity {
 
         super.onCreate(savedInstanceState);
 
-        AdView adView = new AdView(this);
-        adView.setAdSize(AdSize.BANNER);
-        adView.setAdUnitId("ca-app-pub-6708890955193976~7479010286");
-
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
-
-
-
         FacebookSdk.sdkInitialize(getApplicationContext());
         cM = CallbackManager.Factory.create();
 
         getFbKeyHash("YTzWk0lX3r5l5hydFZZxKu5U+C4=");
 
         setContentView(R.layout.activity_main);
+
+        MobileAds.initialize(this, "ca-app-pub-6708890955193976~7479010286");
+
+        adView =  findViewById(R.id.ad_view);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        adView.loadAd(adRequest);
 
         lB = findViewById(R.id.login_button);
 
@@ -79,6 +76,7 @@ public class MainActivity extends Activity {
             }
         });
 
+
     }
 
     public void getFbKeyHash(String packageName){
@@ -102,5 +100,30 @@ public class MainActivity extends Activity {
     }
     protected void onActivityResult(int reqCode, int resCode, Intent i){
         cM.onActivityResult(reqCode, resCode, i);
+    }
+
+
+    @Override
+    protected void onPause() {
+        if(adView != null){
+            adView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if(adView != null){
+            adView.resume();
+        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(adView != null){
+            adView.destroy();
+        }
+        super.onDestroy();
     }
 }
